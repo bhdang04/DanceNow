@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { Home, Map, User, Menu, X } from 'lucide-react'
 import NavButton from './NavButton'
 
-function Navbar() {
-  const [currentPage, setCurrentPage] = useState('home')
+export default function Navbar({ currentPage, setCurrentPage }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navItems = [
@@ -64,5 +63,3 @@ function Navbar() {
     </nav>
   )
 }
-
-export default Navbar
