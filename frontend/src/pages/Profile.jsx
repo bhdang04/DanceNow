@@ -1,4 +1,3 @@
-import React from 'react';
 import { roadmapData } from '../utils/roadmapData';
 
 const Profile = ({ totalSkills, completedSkills, progressPercent }) => {

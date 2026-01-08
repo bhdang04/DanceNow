@@ -1,23 +1,25 @@
-import roadmapData from '../utils/roadmapData'
-import CategoryCard from '../components/roadmap/CategoryCard'
-import SkillNode from '../components/roadmap/SkillNode'
-import ProgressBar from '../components/common/ProgressBar'
+import React from 'react';
+import ProgressBar from '../components/common/ProgressBar';
+import RoadmapView from '../components/roadmap/RoadmapView';
+import { roadmapData } from '../utils/roadmapData';
 
-export default function RoadmapPage({ onSelectSkill }) {
+const RoadmapPage = ({ totalSkills, completedSkills, onSkillClick }) => {
   return (
-    <>
-      <ProgressBar />
-      {roadmapData.categories.map((cat, i) => (
-        <CategoryCard key={cat.id} category={cat} index={i}>
-          {cat.skills.map(skill => (
-            <SkillNode
-              key={skill.id}
-              skill={skill}
-              onSelect={onSelectSkill}
-            />
-          ))}
-        </CategoryCard>
-      ))}
-    </>
-  )
-}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Learning Roadmap</h1>
+          <p className="text-gray-600">Follow the path to master hip-hop fundamentals</p>
+          
+          <div className="mt-6">
+            <ProgressBar completed={completedSkills} total={totalSkills} />
+          </div>
+        </div>
+
+        <RoadmapView categories={roadmapData.categories} onSkillClick={onSkillClick} />
+      </div>
+    </div>
+  );
+};
+
+export default RoadmapPage;
