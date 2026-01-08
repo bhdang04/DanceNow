@@ -1,4 +1,3 @@
-import React from 'react';
 import { Home, Map, User, Menu, X } from 'lucide-react';
 
 const Navbar = ({ currentPage, setCurrentPage, mobileMenuOpen, setMobileMenuOpen }) => {

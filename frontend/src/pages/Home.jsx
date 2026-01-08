@@ -1,4 +1,3 @@
-import React from 'react';
 import CategoryCard from '../components/roadmap/CategoryCard';
 import { roadmapData } from '../utils/roadmapData';
 

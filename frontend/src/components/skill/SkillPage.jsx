@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import DifficultyBadge from '../common/DifficultyBadge';
 import VideoPlayer from './VideoPlayer';

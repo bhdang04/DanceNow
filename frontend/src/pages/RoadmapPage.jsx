@@ -1,4 +1,3 @@
-import React from 'react';
 import ProgressBar from '../components/common/ProgressBar';
 import RoadmapView from '../components/roadmap/RoadmapView';
 import { roadmapData } from '../utils/roadmapData';

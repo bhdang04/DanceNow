@@ -1,5 +1,3 @@
-import React from 'react';
-
 const KeyPoints = ({ points }) => {
   const defaultPoints = [
     'Stay relaxed and let the music guide your movement',

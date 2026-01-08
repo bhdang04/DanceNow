@@ -1,5 +1,3 @@
-import React from 'react';
-
 const CommonMistakes = ({ mistakes }) => {
   const defaultMistakes = [
     'Tensing up your body - stay loose!',

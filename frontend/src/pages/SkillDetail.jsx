@@ -1,4 +1,3 @@
-import React from 'react';
 import SkillPage from '../components/skill/SkillPage';
 
 const SkillDetail = ({ skill, onBack }) => {

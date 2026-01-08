@@ -1,5 +1,3 @@
-import React from 'react';
-
 const PracticeDrills = ({ drills }) => {
   const defaultDrills = [
     {

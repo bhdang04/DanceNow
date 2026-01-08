@@ -1,4 +1,3 @@
-import React from 'react';
 import { Play, Check, Lock } from 'lucide-react';
 import DifficultyBadge from '../common/DifficultyBadge';
 

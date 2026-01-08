@@ -1,4 +1,3 @@
-import React from 'react';
 import SkillNode from './SkillNode';
 import DifficultyBadge from '../common/DifficultyBadge';
 

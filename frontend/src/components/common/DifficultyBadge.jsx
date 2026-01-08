@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function DifficultyBadge({ difficulty }) {
   const colors = {
     Beginner: 'bg-green-100 text-green-800',
