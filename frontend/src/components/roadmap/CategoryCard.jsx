@@ -1,6 +1,6 @@
 import DifficultyBadge from '../common/DifficultyBadge';
 
-const CategoryCard = ({ category }) => {
+export default function CategoryCard({ category }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
       <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${category.color} mb-4`}></div>
@@ -12,4 +12,4 @@ const CategoryCard = ({ category }) => {
       </div>
     </div>
   );
-};
+}

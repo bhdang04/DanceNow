@@ -28,7 +28,7 @@ export const roadmapData = {
           title: 'Bouncing on Beat',
           difficulty: 'beginner',
           duration: '10 min',
-          completed: false,
+          completed: true,
           locked: false
         }
       ]
@@ -45,7 +45,7 @@ export const roadmapData = {
           title: 'Basic Bounce',
           difficulty: 'beginner',
           duration: '12 min',
-          completed: false,
+          completed: true,
           locked: false
         },
         {
@@ -86,7 +86,7 @@ export const roadmapData = {
           title: 'Shoulder Isolations',
           difficulty: 'intermediate',
           duration: '18 min',
-          completed: false,
+          completed: true,
           locked: true
         }
       ]
@@ -111,7 +111,7 @@ export const roadmapData = {
           title: 'Locking Basics',
           difficulty: 'intermediate',
           duration: '25 min',
-          completed: false,
+          completed: true,
           locked: true
         }
       ]

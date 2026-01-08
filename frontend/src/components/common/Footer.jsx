@@ -3,7 +3,7 @@ const Footer = () => {
     <footer className="bg-white border-t border-gray-200 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center text-gray-600">
-          <p>© 2024 HipHop Roadmap. Built with passion for dance education.</p>
+          <p>© 2026 HipHop Roadmap. Built with passion for starters who wants to pursue dance.</p>
         </div>
       </div>
     </footer>

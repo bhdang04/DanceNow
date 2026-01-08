@@ -6,8 +6,7 @@ export default function DifficultyBadge({ difficulty }) {
   }
   
   return (
-    <span
-      className={'px-2 py-1 rounded-full text-xs font-medium ${colors[difficulty]}'}>
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[difficulty]}`}>
       {difficulty}
     </span>
   )
