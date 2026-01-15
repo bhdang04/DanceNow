@@ -1,4 +1,3 @@
-```
 **Quick API Endpoint Reference**
 
 **Auth Routes** (`/api/auth`)
