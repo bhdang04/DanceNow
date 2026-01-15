@@ -1,35 +1,30 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import CategoryCard from '../components/roadmap/CategoryCard';
+import { useSkills } from '../context/SkillsContext';
+import { useProgress } from '../context/ProgressContext';
 
-const Home = ({ setCurrentPage, totalSkills, completedSkills, progressPercent }) => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+const Home = ({ setCurrentPage }) => {
+  const { categories, loading: skillsLoading } = useSkills();
+  const { stats } = useProgress();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/api/skills/categories');
-        const data = await res.json();
-        setCategories(data); // assumes backend returns an array of categories
-      } catch (err) {
-        console.error('Failed to fetch categories', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  if (loading) return <p className="text-center mt-10">Loading categories...</p>;
+  if (skillsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading skills...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
-          <h1 className="text-5xl md:text-6xl leading-tight font-bold text-gray-900 mb-6 pb-2">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Master Hip-Hop Dance
-            <span className="block leading-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               Step by Step
             </span>
           </h1>
@@ -54,13 +49,13 @@ const Home = ({ setCurrentPage, totalSkills, completedSkills, progressPercent })
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-              {totalSkills}
+              {stats.total || 0}
             </div>
             <div className="text-gray-600">Skills to Master</div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-              {progressPercent}%
+              {stats.percentage || 0}%
             </div>
             <div className="text-gray-600">Your Progress</div>
           </div>
@@ -71,7 +66,7 @@ const Home = ({ setCurrentPage, totalSkills, completedSkills, progressPercent })
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Learning Path</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {categories.map((category) => (
-              <CategoryCard key={category._id} category={category} />
+              <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         </div>
