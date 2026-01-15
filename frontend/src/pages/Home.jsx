@@ -1,7 +1,28 @@
+import { useState, useEffect } from 'react';
 import CategoryCard from '../components/roadmap/CategoryCard';
-import { roadmapData } from '../utils/roadmapData';
 
 const Home = ({ setCurrentPage, totalSkills, completedSkills, progressPercent }) => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/skills/categories');
+        const data = await res.json();
+        setCategories(data); // assumes backend returns an array of categories
+      } catch (err) {
+        console.error('Failed to fetch categories', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (loading) return <p className="text-center mt-10">Loading categories...</p>;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -27,7 +48,7 @@ const Home = ({ setCurrentPage, totalSkills, completedSkills, progressPercent })
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-              {roadmapData.categories.length}
+              {categories.length}
             </div>
             <div className="text-gray-600">Categories</div>
           </div>
@@ -49,8 +70,8 @@ const Home = ({ setCurrentPage, totalSkills, completedSkills, progressPercent })
         <div className="mt-20">
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Learning Path</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {roadmapData.categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+            {categories.map((category) => (
+              <CategoryCard key={category._id} category={category} />
             ))}
           </div>
         </div>
