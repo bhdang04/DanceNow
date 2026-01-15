@@ -8,7 +8,7 @@ export default function CategoryCard({ category }) {
       <p className="text-gray-600 mb-4">{category.description}</p>
       <div className="flex items-center justify-between">
         <DifficultyBadge difficulty={category.difficulty} />
-        <span className="text-sm text-gray-500">{category.skills.length} skills</span>
+        <span className="text-sm text-gray-500">{category.skills?.length || 0} skills</span>
       </div>
     </div>
   );

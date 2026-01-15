@@ -66,7 +66,7 @@ const Home = ({ setCurrentPage }) => {
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Learning Path</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+              <CategoryCard key={category._id} category={category} />
             ))}
           </div>
         </div>
