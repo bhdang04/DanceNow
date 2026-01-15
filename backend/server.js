@@ -46,6 +46,4 @@ process.on('SIGTERM', async () => {
 
 startServer();
 
-// db Password: F1e7nVybApriBFJY 
-
 export default app
