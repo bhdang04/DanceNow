@@ -1,8 +1,8 @@
 import React from 'react';
 import { Play, Check, Lock } from 'lucide-react';
-import DifficultyBadge from '../common/DifficultyBadge';
-import { useProgress } from '../../context/ProgressContext';
-import { useAuth } from '../../context/AuthContext';
+import DifficultyBadge from '../components/common/DifficultyBadge';
+import { useProgress } from '../context/ProgressContext';
+import { useAuth } from '../context/AuthContext';
 
 const SkillNode = ({ skill, onClick }) => {
   const { isSkillCompleted } = useProgress();
