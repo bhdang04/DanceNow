@@ -1,8 +1,24 @@
+import React from 'react';
 import ProgressBar from '../components/common/ProgressBar';
 import RoadmapView from '../components/roadmap/RoadmapView';
-import { roadmapData } from '../utils/roadmapData';
+import { useSkills } from '../context/SkillsContext';
+import { useProgress } from '../context/ProgressContext';
 
-const RoadmapPage = ({ totalSkills, completedSkills, onSkillClick }) => {
+const RoadmapPage = ({ onSkillClick }) => {
+  const { categories, loading: skillsLoading } = useSkills();
+  const { stats, loading: progressLoading } = useProgress();
+
+  if (skillsLoading || progressLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading roadmap...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -11,11 +27,11 @@ const RoadmapPage = ({ totalSkills, completedSkills, onSkillClick }) => {
           <p className="text-gray-600">Follow the path to master hip-hop fundamentals</p>
           
           <div className="mt-6">
-            <ProgressBar completed={completedSkills} total={totalSkills} />
+            <ProgressBar completed={stats.completed} total={stats.total} />
           </div>
         </div>
 
-        <RoadmapView categories={roadmapData.categories} onSkillClick={onSkillClick} />
+        <RoadmapView categories={categories} onSkillClick={onSkillClick} />
       </div>
     </div>
   );
