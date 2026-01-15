@@ -18,8 +18,6 @@ app.use(cookieParser());
 app.use('/api', routes);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+// db Password: F1e7nVybApriBFJY 
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+export default app
