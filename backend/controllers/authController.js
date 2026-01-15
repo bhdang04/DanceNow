@@ -119,3 +119,61 @@ export const logout = async (req, res) => {
     });
     res.status(200).json({ message: 'Logged out successfully' });
 };
+
+// @desc    Get current user
+// @route   GET /api/auth/me
+// @access  Private
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      user: User.sanitizeUser(user)
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    const updateData = {};
+
+    // Only update fields that are provided
+    if (username) {
+      // Check if username is already taken by another user
+      const existingUser = await User.findByUsername(username);
+      if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+        return res.status(400).json({ message: 'Username already taken' });
+      }
+      updateData.username = username;
+    }
+
+    if (email) {
+      // Check if email is already taken by another user
+      const existingUser = await User.findByEmail(email);
+      if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+      updateData.email = email.toLowerCase();
+    }
+
+    const updatedUser = await User.updateById(req.user._id, updateData);
+
+    res.json({
+      success: true,
+      user: User.sanitizeUser(updatedUser)
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
