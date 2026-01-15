@@ -111,18 +111,11 @@ export const login = async (req, res) => {
 // @route  POST /api/auth/logout
 // @access Private
 export const logout = async (req, res) => {
-    try {
-        res.cookie('token', '', {
+    res.cookie('token', '', {
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         expires: new Date(0)
-        });
-
-        res.json({
-        success: true,
-        message: 'Logged out successfully'
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
+    });
+    res.status(200).json({ message: 'Logged out successfully' });
 };
-
