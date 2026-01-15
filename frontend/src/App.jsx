@@ -1,6 +1,3 @@
-// ============================================
-// src/App.jsx
-// ============================================
 import React, { useState } from 'react';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
@@ -9,21 +6,17 @@ import RoadmapPage from './pages/RoadmapPage';
 import SkillDetail from './pages/SkillDetail';
 import Profile from './pages/Profile';
 import About from './pages/About';
-import { roadmapData } from './utils/roadmapData';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
+import { AuthProvider } from './context/AuthContext';
+import { SkillsProvider } from './context/SkillsContext';
+import { ProgressProvider } from './context/ProgressContext';
 
-const App = () => {
+const AppContent = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Calculate progress stats
-  const totalSkills = roadmapData.categories.reduce((sum, cat) => sum + cat.skills.length, 0);
-  const completedSkills = roadmapData.categories.reduce(
-    (sum, cat) => sum + cat.skills.filter(s => s.completed).length, 0
-  );
-  const progressPercent = Math.round((completedSkills / totalSkills) * 100);
-
-  // Handlers
   const handleSkillClick = (skill) => {
     setSelectedSkill(skill);
   };
@@ -41,21 +34,10 @@ const App = () => {
         setMobileMenuOpen={setMobileMenuOpen}
       />
       
-      {currentPage === 'home' && (
-        <Home 
-          setCurrentPage={setCurrentPage}
-          totalSkills={totalSkills}
-          completedSkills={completedSkills}
-          progressPercent={progressPercent}
-        />
-      )}
+      {currentPage === 'home' && <Home setCurrentPage={setCurrentPage} />}
       
       {currentPage === 'roadmap' && !selectedSkill && (
-        <RoadmapPage 
-          totalSkills={totalSkills}
-          completedSkills={completedSkills}
-          onSkillClick={handleSkillClick}
-        />
+        <RoadmapPage onSkillClick={handleSkillClick} />
       )}
       
       {currentPage === 'roadmap' && selectedSkill && (
@@ -65,18 +47,28 @@ const App = () => {
         />
       )}
       
-      {currentPage === 'profile' && (
-        <Profile 
-          totalSkills={totalSkills}
-          completedSkills={completedSkills}
-          progressPercent={progressPercent}
-        />
-      )}
+      {currentPage === 'profile' && <Profile />}
       
       {currentPage === 'about' && <About />}
       
+      {currentPage === 'login' && <Login setCurrentPage={setCurrentPage} />}
+      
+      {currentPage === 'signup' && <Signup setCurrentPage={setCurrentPage} />}
+      
       <Footer />
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <SkillsProvider>
+        <ProgressProvider>
+          <AppContent />
+        </ProgressProvider>
+      </SkillsProvider>
+    </AuthProvider>
   );
 };
 
