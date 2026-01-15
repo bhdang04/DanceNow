@@ -1,7 +1,7 @@
 ```
-## **Quick API Endpoint Reference**
+## Quick API Endpoint Reference
 
-### **Auth Routes** (`/api/auth`)
+### Auth Routes (`/api/auth`)
 ```
 POST   /api/auth/register      - Register new user
 POST   /api/auth/login         - Login user
