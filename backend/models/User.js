@@ -67,3 +67,5 @@ export class User {
     return sanitized;
   }
 }
+
+export default User;
