@@ -4,23 +4,55 @@ import RoadmapView from '../components/roadmap/RoadmapView';
 import MilestoneCard from '../components/roadmap/MilestoneCard';
 import { useSkills } from '../context/SkillsContext';
 import { useProgress } from '../context/ProgressContext';
-import { generatePersonalizedRoadmap, generateMilestones } from '../utils/personalization';
 import { RefreshCw, Sparkles } from 'lucide-react';
 
-const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) => {
+const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData, onResetPersonalization }) => {
   const { categories: allCategories, loading: skillsLoading, getTotalSkills } = useSkills();
   const { calculateStats, progress, loading: progressLoading } = useProgress();
   const [displayCategories, setDisplayCategories] = useState([]);
   const [showPersonalizationInfo, setShowPersonalizationInfo] = useState(false);
 
-  // Generate or retrieve personalized roadmap
+  // Generate milestones locally (simple function)
+  const generateMilestones = (totalSkills) => {
+    return [
+      { 
+        percentage: 25, 
+        title: 'Foundation Builder', 
+        description: 'You\'ve mastered the basics!',
+        icon: '🌱'
+      },
+      { 
+        percentage: 50, 
+        title: 'Intermediate Dancer', 
+        description: 'Halfway to mastery!',
+        icon: '🔥'
+      },
+      { 
+        percentage: 75, 
+        title: 'Advanced Student', 
+        description: 'Almost there, keep pushing!',
+        icon: '⭐'
+      },
+      { 
+        percentage: 100, 
+        title: 'Hip-Hop Master', 
+        description: 'You did it! Now teach others!',
+        icon: '👑'
+      }
+    ];
+  };
+
+  // Load personalized roadmap or default categories
   useEffect(() => {
     if (!skillsLoading && allCategories.length > 0) {
       // If we have personalized data from backend, use it
       if (personalizedData && personalizedData.categories) {
+        console.log('Using personalized roadmap:', personalizedData);
         setDisplayCategories(personalizedData.categories);
+        setShowPersonalizationInfo(true);
       } else {
         // Show all categories if no personalization
+        console.log('Using default roadmap');
         setDisplayCategories(allCategories);
       }
     }
@@ -30,7 +62,7 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
   const stats = useMemo(() => {
     const totalSkills = displayCategories.reduce((sum, cat) => sum + (cat.skills?.length || 0), 0);
     return calculateStats(totalSkills);
-  }, [progress, displayCategories]);
+  }, [progress, displayCategories, calculateStats]);
 
   // Generate milestones
   const milestones = useMemo(() => {
@@ -44,15 +76,6 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
       onResetPersonalization();
     }
   };
-
-  // In the JSX, update the reset button:
-  <button
-    onClick={handleResetPersonalization}
-    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm"
-  >
-    <RefreshCw size={16} />
-    Retake Quiz
-  </button>
 
   if (skillsLoading || progressLoading) {
     return (
@@ -89,21 +112,21 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
         </div>
 
         {/* Personalization Info Banner */}
-        {showPersonalizationInfo && personalizedData && (
+        {showPersonalizationInfo && personalizedData && personalizedData.userProfile && (
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 mb-8 text-white">
             <div className="flex items-start gap-3">
               <Sparkles size={24} className="flex-shrink-0 mt-1" />
               <div className="flex-1">
                 <h3 className="text-lg font-bold mb-2">Your Personalized Roadmap is Ready! 🎉</h3>
                 <div className="space-y-1 text-sm opacity-90">
-                  <p>• Focus: <strong>{personalizedData.userProfile.danceStyle.replace('-', ' ')}</strong></p>
-                  <p>• Level: <strong>{personalizedData.userProfile.experienceLevel.replace('-', ' ')}</strong></p>
+                  <p>• Focus: <strong>{personalizedData.userProfile.danceStyle?.replace('-', ' ')}</strong></p>
+                  <p>• Level: <strong>{personalizedData.userProfile.experienceLevel?.replace('-', ' ')}</strong></p>
                   <p>• Time: <strong>{personalizedData.userProfile.weeklyHours} hours/week</strong></p>
                   <p>• Recommended: Practice <strong>{personalizedData.recommendedPerWeek} skills per week</strong></p>
                   <p>• Estimated completion: <strong>{personalizedData.estimatedWeeks} weeks</strong></p>
                 </div>
                 
-                {personalizedData.goalRecommendations.length > 0 && (
+                {personalizedData.goalRecommendations && personalizedData.goalRecommendations.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-white/20">
                     <p className="font-semibold mb-2">Tips for your goals:</p>
                     <ul className="space-y-1 text-sm">
@@ -135,8 +158,8 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
             <MilestoneCard milestones={milestones} currentPercentage={stats.percentage} />
             
             {/* Recommended This Week */}
-            {personalizedData && (
-              <div className="bg-white rounded-xl p-6 border border-gray-200">
+            {personalizedData && personalizedData.recommendedPerWeek && (
+              <div className="bg-white rounded-xl p-6 border border-gray-200 mt-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Recommended This Week</h3>
                 <div className="space-y-3">
                   <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
@@ -146,10 +169,9 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
                     </div>
                   </div>
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <div className="text-sm text-gray-600">Completed This Week</div>
+                    <div className="text-sm text-gray-600">Progress</div>
                     <div className="text-2xl font-bold text-blue-600">
-                      {/* You can track this with timestamps later */}
-                      0
+                      {stats.completed} / {stats.total}
                     </div>
                   </div>
                 </div>
