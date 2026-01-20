@@ -8,7 +8,7 @@ import Profile from './pages/Profile';
 import About from './pages/About';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
-import OnboardingQuiz from './components/onboarding/OnboardingQuiz';
+import OnboardingQuiz from './components/onboarding/FullOnboarding';
 import { AuthProvider } from './context/AuthContext';
 import { SkillsProvider } from './context/SkillsContext';
 import { ProgressProvider } from './context/ProgressContext';
