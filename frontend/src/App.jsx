@@ -14,7 +14,7 @@ import FullOnboarding from './components/onboarding/FullOnboarding';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SkillsProvider } from './context/SkillsContext';
 import { ProgressProvider } from './context/ProgressContext';
-import { personalizationApi } from './utils/personalizationApi';
+import { personalizationApi } from './utils/personalization';
 
 const AppContent = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -89,14 +89,21 @@ const AppContent = () => {
     console.log('Full onboarding complete:', fullAnswers);
     
     try {
-      // Save to backend
-      const response = await personalizationApi.save(fullAnswers);
-      console.log('Personalization saved:', response);
+      // Save BOTH the answers AND generated roadmap to backend
+      const personalizationData = {
+        answers: fullAnswers, // Raw answers
+        generatedRoadmap: null, // Will be generated on backend or frontend
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      const response = await personalizationApi.save(personalizationData);
+      console.log('Personalization saved to backend:', response);
       
       setPersonalizedData(fullAnswers);
-      localStorage.removeItem('miniOnboardingAnswers'); // Clean up
+      localStorage.removeItem('miniOnboardingAnswers');
       setOnboardingStage('complete');
-      setCurrentPage('roadmap'); // Go to roadmap
+      setCurrentPage('roadmap');
     } catch (error) {
       console.error('Error saving personalization:', error);
       alert('Failed to save personalization. Please try again.');
