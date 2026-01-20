@@ -17,49 +17,71 @@ export const ProgressProvider = ({ children }) => {
   const [stats, setStats] = useState({ total: 0, completed: 0, remaining: 0, percentage: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    // Only fetch if user is authenticated AND auth is done loading
+    if (isAuthenticated && !authLoading && user) {
+      console.log('User authenticated, fetching progress...'); // Debug
       fetchProgress();
       fetchStats();
     } else {
+      console.log('User not authenticated, clearing progress'); // Debug
       setProgress([]);
       setStats({ total: 0, completed: 0, remaining: 0, percentage: 0 });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading, user]);
 
   const fetchProgress = async () => {
+    if (!isAuthenticated) {
+      console.log('Skipping fetch - not authenticated');
+      return;
+    }
+
     try {
       setLoading(true);
+      setError(null);
       const data = await progressApi.getUserProgress();
       console.log('Fetched progress:', data.progress); // Debug log
       setProgress(data.progress || []);
     } catch (err) {
       console.error('Failed to fetch progress:', err);
       setError(err.message);
+      // Don't throw - just log the error
     } finally {
       setLoading(false);
     }
   };
 
   const fetchStats = async () => {
+    if (!isAuthenticated) {
+      console.log('Skipping stats fetch - not authenticated');
+      return;
+    }
+
     try {
       const data = await progressApi.getProgressStats();
       console.log('Fetched stats:', data.stats); // Debug log
       setStats(data.stats || { total: 0, completed: 0, remaining: 0, percentage: 0 });
     } catch (err) {
       console.error('Failed to fetch stats:', err);
+      // Don't throw - just log the error
     }
   };
 
   const isSkillCompleted = (skillId) => {
+    if (!isAuthenticated) return false;
+    
     console.log('Checking if completed:', skillId, 'Progress:', progress); // Debug log
     const skillProgress = progress.find(p => p.skillId === skillId);
     return skillProgress?.completed || false;
   };
 
   const markComplete = async (skillId, notes = '') => {
+    if (!isAuthenticated) {
+      throw new Error('Must be logged in to mark progress');
+    }
+
     try {
       console.log('Marking complete:', skillId); // Debug log
       const result = await progressApi.markSkillComplete(skillId, notes);
@@ -73,6 +95,10 @@ export const ProgressProvider = ({ children }) => {
   };
 
   const markIncomplete = async (skillId) => {
+    if (!isAuthenticated) {
+      throw new Error('Must be logged in to mark progress');
+    }
+
     try {
       console.log('Marking incomplete:', skillId); // Debug log
       await progressApi.markSkillIncomplete(skillId);

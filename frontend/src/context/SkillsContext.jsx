@@ -24,7 +24,9 @@ export const SkillsProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Fetching skills...'); // Debug
       const data = await skillsApi.getAllSkills();
+      console.log('Skills fetched:', data); // Debug
       setCategories(data.categories || []);
     } catch (err) {
       console.error('Failed to fetch skills:', err);
