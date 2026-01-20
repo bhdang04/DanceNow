@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
@@ -22,97 +22,160 @@ const AppContent = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Onboarding state
-  const [onboardingStage, setOnboardingStage] = useState(null); // null, 'mini', 'preview', 'full', 'complete'
+  const [onboardingStage, setOnboardingStage] = useState(null);
   const [miniAnswers, setMiniAnswers] = useState(null);
   const [personalizedData, setPersonalizedData] = useState(null);
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
   
   const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const hasCheckedOnboarding = useRef(false); // Use ref to track if we've checked
 
-  // Check onboarding status on mount and when auth changes
+  // Check onboarding status ONLY on initial mount
   useEffect(() => {
     if (authLoading) return;
+    if (hasCheckedOnboarding.current) return; // Only check once
 
     const checkOnboardingStatus = async () => {
-      if (onboardingStage) return; // Already in onboarding, don’t overwrite
-
+      console.log('🔍 Checking onboarding status...');
+      
       if (isAuthenticated && user) {
         console.log('User authenticated, checking personalization...');
         try {
           const response = await personalizationApi.get();
           console.log('Personalization from backend:', response);
-
+          
           if (response.personalization && response.personalization.generatedRoadmap) {
             setPersonalizedData(response.personalization.generatedRoadmap);
-            setOnboardingStage('complete'); // Show roadmap
-            console.log('Loaded personalization from backend');
+            setOnboardingStage('complete');
+            console.log('✅ User has completed personalization');
           } else {
-            // Logged in but no personalization
             const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
             if (savedMiniAnswers) {
               setMiniAnswers(JSON.parse(savedMiniAnswers));
-              setOnboardingStage('full'); // Show full onboarding
-              console.log('User has mini answers, showing full onboarding');
+              setOnboardingStage('full');
+              console.log('📝 User needs to complete full onboarding');
             } else {
-              setOnboardingStage('mini'); // Start fresh
-              console.log('No personalization, starting mini onboarding');
+              setOnboardingStage('mini');
+              console.log('🆕 User needs to start mini onboarding');
             }
           }
         } catch (error) {
           console.error('Error loading personalization:', error);
-          setOnboardingStage('mini');
+          const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
+          if (savedMiniAnswers) {
+            setMiniAnswers(JSON.parse(savedMiniAnswers));
+            setOnboardingStage('full');
+          } else {
+            setOnboardingStage('mini');
+          }
         }
       } else {
-        // Not logged in
+        console.log('User not authenticated');
         const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
         if (savedMiniAnswers) {
           setMiniAnswers(JSON.parse(savedMiniAnswers));
-          setOnboardingStage('mini'); // Force mini onboarding for anon users
-          console.log('User has mini answers but not logged in, showing mini onboarding');
+          setOnboardingStage('preview');
+          console.log('👀 Showing preview to unauthenticated user');
         } else {
-          setOnboardingStage('mini'); // Brand new user
-          console.log('New anon user, showing mini onboarding');
+          setOnboardingStage('mini');
+          console.log('🆕 New visitor - showing mini onboarding');
         }
       }
+      
+      setIsCheckingOnboarding(false);
+      hasCheckedOnboarding.current = true;
     };
 
     checkOnboardingStatus();
-  }, [authLoading, isAuthenticated, user, onboardingStage]);
+  }, [isAuthenticated, user, authLoading]);
 
-
-  // Handle mini onboarding complete (3 questions)
+  // Handle mini onboarding complete
   const handleMiniOnboardingComplete = (answers) => {
     console.log('Mini onboarding complete:', answers);
     setMiniAnswers(answers);
     localStorage.setItem('miniOnboardingAnswers', JSON.stringify(answers));
-    setOnboardingStage('preview'); // Show preview and ask to signup
+    setOnboardingStage('preview');
   };
 
   // Handle signup from preview
   const handleSignupFromPreview = () => {
+    console.log('Navigating to signup from preview');
     setCurrentPage('signup');
-    // setOnboardingStage(null); // Temporarily hide onboarding to show signup
   };
 
-  // Handle full onboarding complete (after signup)
+  // Handle login from preview
+  const handleLoginFromPreview = () => {
+    console.log('Navigating to login from preview');
+    setCurrentPage('login');
+  };
+
+  // Handle full onboarding complete
   const handleFullOnboardingComplete = async (fullAnswers) => {
     console.log('Full onboarding complete:', fullAnswers);
     
     try {
-      // Send answers to backend - backend will generate the roadmap
       const response = await personalizationApi.save({ answers: fullAnswers });
       console.log('Personalization saved to backend:', response);
       
-      // Use the generated roadmap from backend
       if (response.personalization && response.personalization.generatedRoadmap) {
         setPersonalizedData(response.personalization.generatedRoadmap);
       }
       
-      localStorage.removeItem('miniOnboardingAnswers'); // Clean up
+      localStorage.removeItem('miniOnboardingAnswers');
       setOnboardingStage('complete');
-      setCurrentPage('roadmap'); // Go to roadmap
+      setCurrentPage('roadmap');
     } catch (error) {
       console.error('Error saving personalization:', error);
       alert('Failed to save personalization. Please try again.');
+    }
+  };
+
+  // Handle successful login
+  const handleLoginSuccess = async () => {
+    console.log('✅ Login successful!');
+    const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
+    
+    if (savedMiniAnswers) {
+      console.log('User has mini answers, showing full onboarding');
+      setMiniAnswers(JSON.parse(savedMiniAnswers));
+      setOnboardingStage('full');
+      setCurrentPage('home');
+    } else {
+      console.log('Checking backend for personalization');
+      try {
+        const response = await personalizationApi.get();
+        if (response.personalization?.generatedRoadmap) {
+          setPersonalizedData(response.personalization.generatedRoadmap);
+          setOnboardingStage('complete');
+          setCurrentPage('roadmap');
+          console.log('✅ User has personalization - going to roadmap');
+        } else {
+          setOnboardingStage('mini');
+          setCurrentPage('home');
+          console.log('No personalization - showing mini onboarding');
+        }
+      } catch (error) {
+        setOnboardingStage('mini');
+        setCurrentPage('home');
+        console.log('No personalization found - showing mini onboarding');
+      }
+    }
+  };
+
+  // Handle successful signup
+  const handleSignupSuccess = () => {
+    console.log('✅ Signup successful!');
+    const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
+    
+    if (savedMiniAnswers) {
+      console.log('User has mini answers, showing full onboarding');
+      setMiniAnswers(JSON.parse(savedMiniAnswers));
+      setOnboardingStage('full');
+      setCurrentPage('home');
+    } else {
+      console.log('No mini answers, showing mini onboarding');
+      setOnboardingStage('mini');
+      setCurrentPage('home');
     }
   };
 
@@ -126,7 +189,7 @@ const AppContent = () => {
     setSelectedSkill(null);
   };
 
-  // Reset personalization (for retake quiz)
+  // Reset personalization
   const handleResetPersonalization = async () => {
     try {
       if (isAuthenticated) {
@@ -136,13 +199,14 @@ const AppContent = () => {
       setMiniAnswers(null);
       localStorage.removeItem('miniOnboardingAnswers');
       setOnboardingStage('mini');
+      hasCheckedOnboarding.current = false; // Allow re-check
     } catch (error) {
       console.error('Error resetting personalization:', error);
     }
   };
 
-  // Show loading while checking auth
-  if (authLoading) {
+  // Show loading while checking auth or onboarding
+  if (authLoading || isCheckingOnboarding) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
         <div className="text-center">
@@ -153,30 +217,37 @@ const AppContent = () => {
     );
   }
 
-  // Show onboarding screens
-  if (onboardingStage === 'mini') {
-    return <MiniOnboarding onComplete={handleMiniOnboardingComplete} />;
+  // Only show onboarding if NOT on login/signup pages AND onboarding is incomplete
+  const shouldShowOnboarding = currentPage !== 'login' && 
+                               currentPage !== 'signup' && 
+                               onboardingStage !== 'complete';
+
+  if (shouldShowOnboarding) {
+    if (onboardingStage === 'mini') {
+      return <MiniOnboarding onComplete={handleMiniOnboardingComplete} />;
+    }
+
+    if (onboardingStage === 'preview') {
+      return (
+        <RoadmapPreview 
+          miniAnswers={miniAnswers} 
+          onSignup={handleSignupFromPreview}
+          onLogin={handleLoginFromPreview}
+        />
+      );
+    }
+
+    if (onboardingStage === 'full') {
+      return (
+        <FullOnboarding 
+          miniAnswers={miniAnswers}
+          onComplete={handleFullOnboardingComplete} 
+        />
+      );
+    }
   }
 
-  if (onboardingStage === 'preview') {
-    return (
-      <RoadmapPreview 
-        miniAnswers={miniAnswers} 
-        onSignup={handleSignupFromPreview} 
-      />
-    );
-  }
-
-  if (onboardingStage === 'full') {
-    return (
-      <FullOnboarding 
-        miniAnswers={miniAnswers}
-        onComplete={handleFullOnboardingComplete} 
-      />
-    );
-  }
-
-  // Main app (onboarding complete or on specific pages)
+  // Main app
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar 
@@ -211,34 +282,14 @@ const AppContent = () => {
       {currentPage === 'login' && (
         <Login 
           setCurrentPage={setCurrentPage}
-          onLoginSuccess={() => {
-            // After login, check if they need full onboarding
-            const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
-            if (savedMiniAnswers) {
-              setMiniAnswers(JSON.parse(savedMiniAnswers));
-              setOnboardingStage('full');
-            } else {
-              // They logged in without mini onboarding - check backend
-              setOnboardingStage(null); // Will trigger useEffect to check backend
-            }
-          }}
+          onLoginSuccess={handleLoginSuccess}
         />
       )}
       
       {currentPage === 'signup' && (
         <Signup 
           setCurrentPage={setCurrentPage}
-          onSignupSuccess={() => {
-            // After signup, show full onboarding if they have mini answers
-            const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
-            if (savedMiniAnswers) {
-              setMiniAnswers(JSON.parse(savedMiniAnswers));
-              setOnboardingStage('full');
-            } else {
-              // Signed up without mini onboarding - start from mini
-              setOnboardingStage('mini');
-            }
-          }}
+          onSignupSuccess={handleSignupSuccess}
         />
       )}
       
