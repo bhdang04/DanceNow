@@ -33,60 +33,51 @@ const AppContent = () => {
     if (authLoading) return;
 
     const checkOnboardingStatus = async () => {
+      if (onboardingStage) return; // Already in onboarding, don’t overwrite
+
       if (isAuthenticated && user) {
         console.log('User authenticated, checking personalization...');
-        // User is logged in - check if they have personalization saved in backend
         try {
           const response = await personalizationApi.get();
           console.log('Personalization from backend:', response);
-          
+
           if (response.personalization && response.personalization.generatedRoadmap) {
-            // User has completed personalization
             setPersonalizedData(response.personalization.generatedRoadmap);
-            setOnboardingStage('complete');
+            setOnboardingStage('complete'); // Show roadmap
             console.log('Loaded personalization from backend');
           } else {
-            // Logged in but no personalization - check if they did mini onboarding before signing up
+            // Logged in but no personalization
             const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
             if (savedMiniAnswers) {
               setMiniAnswers(JSON.parse(savedMiniAnswers));
               setOnboardingStage('full'); // Show full onboarding
               console.log('User has mini answers, showing full onboarding');
             } else {
-              // No mini answers - start from scratch
-              setOnboardingStage('mini');
-              console.log('No personalization found, starting mini onboarding');
+              setOnboardingStage('mini'); // Start fresh
+              console.log('No personalization, starting mini onboarding');
             }
           }
         } catch (error) {
           console.error('Error loading personalization:', error);
-          // Error fetching personalization (404 means doesn't exist) - start onboarding
-          const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
-          if (savedMiniAnswers) {
-            setMiniAnswers(JSON.parse(savedMiniAnswers));
-            setOnboardingStage('full');
-          } else {
-            setOnboardingStage('mini');
-          }
+          setOnboardingStage('mini');
         }
       } else {
-        console.log('User not authenticated');
-        // Not logged in - check if they've done mini onboarding
+        // Not logged in
         const savedMiniAnswers = localStorage.getItem('miniOnboardingAnswers');
         if (savedMiniAnswers) {
           setMiniAnswers(JSON.parse(savedMiniAnswers));
-          setOnboardingStage('preview'); // Show preview and signup gate
-          console.log('User has mini answers, showing preview');
+          setOnboardingStage('mini'); // Force mini onboarding for anon users
+          console.log('User has mini answers but not logged in, showing mini onboarding');
         } else {
-          // Brand new user - start mini onboarding
-          setOnboardingStage('mini');
-          console.log('New user, showing mini onboarding');
+          setOnboardingStage('mini'); // Brand new user
+          console.log('New anon user, showing mini onboarding');
         }
       }
     };
 
     checkOnboardingStatus();
-  }, [isAuthenticated, user, authLoading]);
+  }, [authLoading, isAuthenticated, user, onboardingStage]);
+
 
   // Handle mini onboarding complete (3 questions)
   const handleMiniOnboardingComplete = (answers) => {
@@ -99,7 +90,7 @@ const AppContent = () => {
   // Handle signup from preview
   const handleSignupFromPreview = () => {
     setCurrentPage('signup');
-    setOnboardingStage(null); // Temporarily hide onboarding to show signup
+    // setOnboardingStage(null); // Temporarily hide onboarding to show signup
   };
 
   // Handle full onboarding complete (after signup)
