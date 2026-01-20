@@ -5,6 +5,10 @@ import { Skill } from '../models/Skill.js';
 const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
   const { danceStyle, experienceLevel, weeklyHours, goals, primaryGoal, practiceEnvironment } = userAnswers;
 
+  console.log('=== GENERATING PERSONALIZED ROADMAP ===');
+  console.log('User answers:', userAnswers);
+  console.log('Total skills available:', allSkills.length);
+
   // Group skills by category
   const categoriesMap = {};
   allSkills.forEach(skill => {
@@ -33,6 +37,7 @@ const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
   });
 
   let personalizedCategories = Object.values(categoriesMap);
+  console.log('Categories before filtering:', personalizedCategories.length);
 
   // Prioritize categories based on dance style
   const stylePriorities = {
@@ -71,14 +76,32 @@ const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
   personalizedCategories = personalizedCategories.map(category => {
     let filteredSkills = [...category.skills];
 
+    console.log(`Category "${category.title}" - Before filter:`, filteredSkills.length);
+
     if (experienceLevel === 'complete-beginner') {
+      // Only show beginner skills
       filteredSkills = filteredSkills.filter(skill => skill.difficulty === 'beginner');
     } else if (experienceLevel === 'some-experience') {
-      filteredSkills = filteredSkills.filter(skill => skill.difficulty !== 'advanced');
+      // Show beginner and intermediate
+      filteredSkills = filteredSkills.filter(skill => 
+        skill.difficulty === 'beginner' || skill.difficulty === 'intermediate'
+      );
     }
+    // For 'intermediate' and 'advanced', show all skills
+
+    console.log(`Category "${category.title}" - After filter:`, filteredSkills.length);
 
     return { ...category, skills: filteredSkills };
-  }).filter(category => category.skills.length > 0);
+  }).filter(category => {
+    // CRITICAL: Only remove categories if they have NO skills
+    const hasSkills = category.skills.length > 0;
+    if (!hasSkills) {
+      console.log(`⚠️ Removing empty category: ${category.title}`);
+    }
+    return hasSkills;
+  });
+
+  console.log('Categories after filtering:', personalizedCategories.length);
 
   // Mark priority categories
   if (styleConfig.emphasis !== 'balanced') {
@@ -105,6 +128,10 @@ const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
   const recommendedPerWeek = skillsPerWeek[weeklyHours] || 3;
   const totalSkills = personalizedCategories.reduce((sum, cat) => sum + cat.skills.length, 0);
   const weeksToComplete = Math.ceil(totalSkills / recommendedPerWeek);
+
+  console.log('Total skills in roadmap:', totalSkills);
+  console.log('Recommended per week:', recommendedPerWeek);
+  console.log('Estimated weeks:', weeksToComplete);
 
   // Generate goal recommendations
   const goalRecommendations = [];
@@ -145,7 +172,7 @@ const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
     });
   }
 
-  return {
+  const result = {
     categories: personalizedCategories,
     recommendedPerWeek,
     estimatedWeeks: weeksToComplete,
@@ -159,6 +186,14 @@ const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
       practiceEnvironment: practiceEnvironment || 'anywhere'
     }
   };
+
+  console.log('=== ROADMAP GENERATION COMPLETE ===');
+  console.log('Final categories:', result.categories.length);
+  result.categories.forEach(cat => {
+    console.log(`  - ${cat.title}: ${cat.skills.length} skills`);
+  });
+
+  return result;
 };
 
 // @desc    Save user personalization and generate roadmap

@@ -217,22 +217,10 @@ const AppContent = () => {
     );
   }
 
-  // Add this BEFORE the shouldShowOnboarding check
-console.log('=== APP STATE DEBUG ===');
-console.log('currentPage:', currentPage);
-console.log('onboardingStage:', onboardingStage);
-console.log('isAuthenticated:', isAuthenticated);
-console.log('hasCheckedOnboarding:', hasCheckedOnboarding.current);
-console.log('miniAnswers:', miniAnswers);
-console.log('personalizedData:', personalizedData ? 'exists' : 'null');
-
   // Only show onboarding if NOT on login/signup pages AND onboarding is incomplete
   const shouldShowOnboarding = currentPage !== 'login' && 
                                currentPage !== 'signup' && 
                                onboardingStage !== 'complete';
-
-                               console.log('shouldShowOnboarding:', shouldShowOnboarding);
-console.log('=======================');
 
   if (shouldShowOnboarding) {
     if (onboardingStage === 'mini') {
