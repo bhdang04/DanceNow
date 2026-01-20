@@ -26,17 +26,37 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
 
   // Load personalized roadmap OR default
   useEffect(() => {
-    if (skillsLoading) return;
-
-    if (roadmap?.categories?.length > 0) {
-      setDisplayCategories(roadmap.categories);
-      setShowPersonalizationInfo(true);
-    } else {
-      setDisplayCategories(allCategories);
-      setShowPersonalizationInfo(false);
+    if (!skillsLoading && allCategories.length > 0) {
+      console.log('=== ROADMAP PAGE DEBUG ===');
+      console.log('All categories from backend:', allCategories.length);
+      
+      if (personalizedData && personalizedData.categories) {
+        console.log('✅ Using personalized roadmap');
+        console.log('Personalized categories:', personalizedData.categories.length);
+        
+        personalizedData.categories.forEach((cat, idx) => {
+          console.log(`  ${idx + 1}. ${cat.title}: ${cat.skills?.length || 0} skills`);
+          if (cat.skills?.length > 0) {
+            console.log('     Skills:', cat.skills.map(s => s.title).join(', '));
+          }
+        });
+        
+        setDisplayCategories(personalizedData.categories);
+        setShowPersonalizationInfo(true);
+      } else {
+        console.log('⚠️ No personalized data, using all categories');
+        console.log('All categories:', allCategories.length);
+        
+        allCategories.forEach((cat, idx) => {
+          console.log(`  ${idx + 1}. ${cat.title}: ${cat.skills?.length || 0} skills`);
+        });
+        
+        setDisplayCategories(allCategories);
+        setShowPersonalizationInfo(false);
+      }
     }
-  }, [skillsLoading, roadmap, allCategories]);
-
+  }, [skillsLoading, allCategories, personalizedData]);
+  
   // Stats
   const stats = useMemo(() => {
     const totalSkills = displayCategories.reduce(
