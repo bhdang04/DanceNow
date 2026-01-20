@@ -18,12 +18,17 @@ const AppContent = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSkillClick = (skill) => {
+    console.log('App - Skill clicked:', skill); // Debug
     setSelectedSkill(skill);
+    console.log('App - selectedSkill state set to:', skill); // Debug
   };
 
   const handleBackToRoadmap = () => {
+    console.log('App - Going back to roadmap'); // Debug
     setSelectedSkill(null);
   };
+
+  console.log('App - Current state:', { currentPage, selectedSkill }); // Debug
 
   return (
     <div className="min-h-screen bg-gray-50">
