@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const Login = ({ setCurrentPage }) => {
+const Login = ({ setCurrentPage, onLoginSuccess }) => {  // ← Make sure this prop is here
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,18 +16,24 @@ const Login = ({ setCurrentPage }) => {
     try {
       await login(email, password);
       
+      console.log('✅ Login successful');
+      
       // Call success callback if provided
       if (onLoginSuccess) {
+        console.log('✅ Calling onLoginSuccess');
         onLoginSuccess();
       } else {
+        console.warn('⚠️ onLoginSuccess not provided, using fallback');
         setCurrentPage('roadmap');
       }
     } catch (err) {
+      console.error('❌ Login error:', err);
       setError(err.message || 'Failed to login');
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">

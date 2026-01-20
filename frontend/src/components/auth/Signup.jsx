@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const Signup = ({ setCurrentPage }) => {
+const Signup = ({ setCurrentPage, onSignupSuccess }) => {  // ← Make sure this prop is here
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,19 +29,23 @@ const Signup = ({ setCurrentPage }) => {
     try {
       await register(username, email, password);
       
+      console.log('✅ Registration successful');
+      
       // Call success callback if provided
       if (onSignupSuccess) {
+        console.log('✅ Calling onSignupSuccess');
         onSignupSuccess();
       } else {
+        console.warn('⚠️ onSignupSuccess not provided, using fallback');
         setCurrentPage('roadmap');
       }
     } catch (err) {
+      console.error('❌ Signup error:', err);
       setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
