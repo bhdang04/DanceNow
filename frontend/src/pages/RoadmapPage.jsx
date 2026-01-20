@@ -52,11 +52,19 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
 
   // Reset personalization
   const handleResetPersonalization = () => {
-    localStorage.removeItem('onboardingAnswers');
-    localStorage.removeItem('onboardingComplete');
-    localStorage.removeItem('personalizedRoadmap');
-    window.location.reload(); // Reload to show onboarding again
+    if (window.confirm('Are you sure you want to retake the personalization quiz? This will reset your custom roadmap.')) {
+      onResetPersonalization();
+    }
   };
+
+  // In the JSX, update the reset button:
+  <button
+    onClick={handleResetPersonalization}
+    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm"
+  >
+    <RefreshCw size={16} />
+    Retake Quiz
+  </button>
 
   if (skillsLoading || progressLoading) {
     return (
