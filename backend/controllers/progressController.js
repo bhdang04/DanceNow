@@ -41,6 +41,8 @@ export const markSkillComplete = async (req, res) => {
     const { skillId } = req.params;
     const { notes } = req.body;
 
+    console.log('Marking complete - User:', req.user._id, 'Skill:', skillId); // Debug log
+
     const progress = await Progress.markComplete(req.user._id, skillId, notes || '');
 
     res.json({
@@ -49,6 +51,7 @@ export const markSkillComplete = async (req, res) => {
       progress
     });
   } catch (error) {
+    console.error('Error marking complete:', error); // Debug log
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

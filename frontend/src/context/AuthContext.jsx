@@ -23,6 +23,8 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     const token = localStorage.getItem('token');
+    console.log('Checking auth - Token exists:', !!token); // Debug log
+    
     if (!token) {
       setLoading(false);
       return;
@@ -30,10 +32,12 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const data = await authApi.getCurrentUser();
+      console.log('Auth check successful, user:', data.user); // Debug log
       setUser(data.user);
     } catch (err) {
       console.error('Auth check failed:', err);
       localStorage.removeItem('token');
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -43,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const data = await authApi.register(username, email, password);
+      console.log('Register successful:', data); // Debug log
       setUser(data.user);
       return data;
     } catch (err) {
@@ -55,6 +60,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const data = await authApi.login(email, password);
+      console.log('Login successful:', data); // Debug log
       setUser(data.user);
       return data;
     } catch (err) {
@@ -66,6 +72,8 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await authApi.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
     } finally {
       setUser(null);
       localStorage.removeItem('token');
@@ -94,6 +102,8 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     isAuthenticated: !!user
   };
+
+  console.log('Auth state - User:', user, 'Authenticated:', !!user); // Debug log
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

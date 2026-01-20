@@ -14,6 +14,7 @@ const SkillPage = ({ skill, onBack }) => {
   
   if (!skill) return null;
 
+  const skillId = skill.id || skill.skillId;
   const completed = isAuthenticated ? isSkillCompleted(skill.id) : false;
 
   const handleToggleComplete = async () => {
