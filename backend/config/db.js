@@ -42,6 +42,9 @@ const createIndexes = async () => {
     // Skills collection indexes
     await db.collection('skills').createIndex({ skillId: 1 }, { unique: true });
     await db.collection('skills').createIndex({ categoryId: 1 });
+
+    // Personalizations collection indexes
+    await db.collection('personalizations').createIndex({ userId: 1 }, { unique: true });
     
     console.log('Database indexes created');
   } catch (error) {
