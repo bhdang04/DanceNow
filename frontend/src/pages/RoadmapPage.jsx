@@ -43,16 +43,28 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData, onRe
   };
 
   // Load personalized roadmap or default categories
+  // In the useEffect, add more logging
   useEffect(() => {
     if (!skillsLoading && allCategories.length > 0) {
+      console.log('=== ROADMAP PAGE DEBUG ===');
+      console.log('All categories from SkillsContext:', allCategories);
+      console.log('Personalized data:', personalizedData);
+      
       // If we have personalized data from backend, use it
       if (personalizedData && personalizedData.categories) {
-        console.log('Using personalized roadmap:', personalizedData);
+        console.log('Using personalized roadmap with categories:', personalizedData.categories);
+        console.log('Number of categories:', personalizedData.categories.length);
+        
+        // Check if categories have skills
+        personalizedData.categories.forEach(cat => {
+          console.log(`Category ${cat.title} has ${cat.skills?.length || 0} skills`);
+        });
+        
         setDisplayCategories(personalizedData.categories);
         setShowPersonalizationInfo(true);
       } else {
         // Show all categories if no personalization
-        console.log('Using default roadmap');
+        console.log('Using default roadmap with', allCategories.length, 'categories');
         setDisplayCategories(allCategories);
       }
     }

@@ -168,13 +168,28 @@ export const savePersonalization = async (req, res) => {
   try {
     const { answers } = req.body;
 
+    console.log('=== BACKEND PERSONALIZATION DEBUG ===');
     console.log('Saving personalization for user:', req.user._id);
+    console.log('Answers received:', answers);
 
     // Fetch all skills from database
     const allSkills = await Skill.findAll();
+    console.log('Total skills fetched from DB:', allSkills.length);
+    
+    if (allSkills.length === 0) {
+      return res.status(400).json({ 
+        message: 'No skills found in database. Please seed the database first.' 
+      });
+    }
 
     // Generate personalized roadmap on backend
     const generatedRoadmap = generatePersonalizedRoadmap(answers, allSkills);
+    console.log('Generated roadmap categories:', generatedRoadmap.categories.length);
+    
+    // Log each category
+    generatedRoadmap.categories.forEach(cat => {
+      console.log(`Category: ${cat.title}, Skills: ${cat.skills.length}`);
+    });
 
     // Save to database
     const personalizationData = {
@@ -187,6 +202,8 @@ export const savePersonalization = async (req, res) => {
       req.user._id, 
       personalizationData
     );
+
+    console.log('Personalization saved successfully');
 
     res.json({
       success: true,

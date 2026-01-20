@@ -186,7 +186,7 @@ export const deleteSkill = async (req, res) => {
 // @access  Public (can protect this in production)
 export const seedSkills = async (req, res) => {
   try {
-    // Sample seed data based on your frontend roadmapData
+    // Sample seed data - MAKE SURE THIS HAS DATA
     const seedData = [
       {
         skillId: 'counting-beats',
@@ -214,138 +214,15 @@ export const seedSkills = async (req, res) => {
           {
             title: 'Drill 1: Count and Clap',
             description: 'Count "1, 2, 3, 4" out loud while clapping. Do this for 2 minutes straight.'
-          },
-          {
-            title: 'Drill 2: Count with Music',
-            description: 'Play your favorite song and count along with the beat.'
           }
         ],
         prerequisites: []
       },
-      {
-        skillId: 'finding-the-one',
-        title: 'Finding the "1"',
-        categoryId: 'rhythm-musicality',
-        categoryTitle: 'Rhythm & Musicality',
-        categoryDescription: 'Foundation of feeling the music',
-        categoryDifficulty: 'beginner',
-        categoryColor: 'from-purple-500 to-pink-500',
-        difficulty: 'beginner',
-        duration: '8 min',
-        videoUrl: '',
-        description: 'Identify the first beat in a measure',
-        keyPoints: [
-          'The "1" is typically the strongest beat',
-          'Listen for the bass drum or kick',
-          'Feel the natural emphasis in the music'
-        ],
-        commonMistakes: [
-          'Confusing the "1" with other strong beats',
-          'Starting your count in the middle of a measure'
-        ],
-        practiceDrills: [
-          {
-            title: 'Drill 1: Clap on the 1',
-            description: 'Listen to music and only clap on the first beat of each measure.'
-          }
-        ],
-        prerequisites: ['counting-beats']
-      },
-      {
-        skillId: 'bounce-on-beat',
-        title: 'Bouncing on Beat',
-        categoryId: 'rhythm-musicality',
-        categoryTitle: 'Rhythm & Musicality',
-        categoryDescription: 'Foundation of feeling the music',
-        categoryDifficulty: 'beginner',
-        categoryColor: 'from-purple-500 to-pink-500',
-        difficulty: 'beginner',
-        duration: '10 min',
-        videoUrl: '',
-        description: 'Add body movement to the beat',
-        keyPoints: [
-          'Bend your knees slightly',
-          'Let your body naturally move with the music',
-          'Keep your upper body relaxed'
-        ],
-        commonMistakes: [
-          'Tensing up your shoulders',
-          'Bouncing too high or too stiff',
-          'Not bending your knees enough'
-        ],
-        practiceDrills: [
-          {
-            title: 'Drill 1: Count and Bounce',
-            description: 'Count "1, 2, 3, 4" out loud while bouncing. Do this for 2 minutes straight.'
-          },
-          {
-            title: 'Drill 2: Mirror Practice',
-            description: 'Practice in front of a mirror to check your form and timing.'
-          }
-        ],
-        prerequisites: ['counting-beats', 'finding-the-one']
-      },
-      {
-        skillId: 'basic-bounce',
-        title: 'Basic Bounce',
-        categoryId: 'core-grooves',
-        categoryTitle: 'Core Grooves',
-        categoryDescription: 'Essential hip-hop movements',
-        categoryDifficulty: 'beginner',
-        categoryColor: 'from-blue-500 to-cyan-500',
-        difficulty: 'beginner',
-        duration: '12 min',
-        videoUrl: '',
-        description: 'The foundation groove of hip-hop',
-        keyPoints: [
-          'Maintain a steady rhythm',
-          'Use your knees as shock absorbers',
-          'Keep your core engaged but relaxed'
-        ],
-        commonMistakes: [
-          'Bouncing only from the waist up',
-          'Forgetting to breathe',
-          'Moving too fast for your skill level'
-        ],
-        practiceDrills: [
-          {
-            title: 'Drill 1: Slow Bounce',
-            description: 'Practice bouncing at half tempo for better control.'
-          }
-        ],
-        prerequisites: ['bounce-on-beat']
-      },
-      {
-        skillId: 'two-step',
-        title: 'Two-Step',
-        categoryId: 'core-grooves',
-        categoryTitle: 'Core Grooves',
-        categoryDescription: 'Essential hip-hop movements',
-        categoryDifficulty: 'beginner',
-        categoryColor: 'from-blue-500 to-cyan-500',
-        difficulty: 'beginner',
-        duration: '15 min',
-        videoUrl: '',
-        description: 'Basic side-to-side movement',
-        keyPoints: [
-          'Transfer weight smoothly',
-          'Stay low and grounded',
-          'Add your own style'
-        ],
-        commonMistakes: [
-          'Standing too upright',
-          'Not fully transferring weight',
-          'Rushing the movement'
-        ],
-        practiceDrills: [
-          {
-            title: 'Drill 1: Two-Step Slow',
-            description: 'Practice the two-step at a slower tempo.'
-          }
-        ],
-        prerequisites: ['basic-bounce']
-      }
+      // ADD MORE SKILLS HERE - at least 10-15
+      // ... (use the CSV data we created earlier)
     ];
+
+    console.log('Seeding', seedData.length, 'skills...');
 
     // Insert all seed data
     const skills = [];
@@ -357,12 +234,15 @@ export const seedSkills = async (req, res) => {
       }
     }
 
+    console.log('Seeded', skills.length, 'new skills');
+
     res.status(201).json({
       success: true,
       message: `Seeded ${skills.length} skills`,
       skills
     });
   } catch (error) {
+    console.error('Seed error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
