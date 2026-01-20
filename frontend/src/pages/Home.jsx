@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import CategoryCard from '../components/roadmap/CategoryCard';
 import { useSkills } from '../context/SkillsContext';
 import { useProgress } from '../context/ProgressContext';
 
 const Home = ({ setCurrentPage }) => {
-  const { categories, loading: skillsLoading } = useSkills();
-  const { stats } = useProgress();
+  const { categories, loading: skillsLoading, getTotalSkills } = useSkills();
+  const { calculateStats, progress } = useProgress();
+
+  // Calculate stats with total from skills
+  const stats = useMemo(() => {
+    const totalSkills = getTotalSkills();
+    return calculateStats(totalSkills);
+  }, [progress, categories]);
 
   if (skillsLoading) {
     return (
@@ -49,13 +55,13 @@ const Home = ({ setCurrentPage }) => {
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-              {stats.total || 0}
+              {stats.total}
             </div>
             <div className="text-gray-600">Skills to Master</div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-              {stats.percentage || 0}%
+              {stats.percentage}%
             </div>
             <div className="text-gray-600">Your Progress</div>
           </div>

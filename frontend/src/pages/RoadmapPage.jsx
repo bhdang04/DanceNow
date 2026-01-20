@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ProgressBar from '../components/common/ProgressBar';
 import RoadmapView from '../components/roadmap/RoadmapView';
 import { useSkills } from '../context/SkillsContext';
 import { useProgress } from '../context/ProgressContext';
 
 const RoadmapPage = ({ onSkillClick }) => {
-  const { categories, loading: skillsLoading } = useSkills();
-  const { stats, loading: progressLoading } = useProgress();
+  const { categories, loading: skillsLoading, getTotalSkills } = useSkills();
+  const { calculateStats, progress, loading: progressLoading } = useProgress();
+
+  // Calculate stats with total from skills
+  const stats = useMemo(() => {
+    const totalSkills = getTotalSkills();
+    return calculateStats(totalSkills);
+  }, [progress, categories]);
 
   if (skillsLoading || progressLoading) {
     return (

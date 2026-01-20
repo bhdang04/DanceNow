@@ -24,7 +24,6 @@ export const ProgressProvider = ({ children }) => {
     if (isAuthenticated && !authLoading && user) {
       console.log('User authenticated, fetching progress...'); // Debug
       fetchProgress();
-      fetchStats();
     } else {
       console.log('User not authenticated, clearing progress'); // Debug
       setProgress([]);
@@ -53,20 +52,17 @@ export const ProgressProvider = ({ children }) => {
     }
   };
 
-  const fetchStats = async () => {
-    if (!isAuthenticated) {
-      console.log('Skipping stats fetch - not authenticated');
-      return;
-    }
-
-    try {
-      const data = await progressApi.getProgressStats();
-      console.log('Fetched stats:', data.stats); // Debug log
-      setStats(data.stats || { total: 0, completed: 0, remaining: 0, percentage: 0 });
-    } catch (err) {
-      console.error('Failed to fetch stats:', err);
-      // Don't throw - just log the error
-    }
+  // Remove fetchStats - we'll calculate it locally
+  const calculateStats = (totalSkills) => {
+    const completed = progress.filter(p => p.completed).length;
+    const percentage = totalSkills > 0 ? Math.round((completed / totalSkills) * 100) : 0;
+    
+    return {
+      total: totalSkills,
+      completed,
+      remaining: totalSkills - completed,
+      percentage
+    };
   };
 
   const isSkillCompleted = (skillId) => {
@@ -87,7 +83,6 @@ export const ProgressProvider = ({ children }) => {
       const result = await progressApi.markSkillComplete(skillId, notes);
       console.log('Mark complete result:', result); // Debug log
       await fetchProgress();
-      await fetchStats();
     } catch (err) {
       console.error('Failed to mark complete:', err);
       throw err;
@@ -103,7 +98,6 @@ export const ProgressProvider = ({ children }) => {
       console.log('Marking incomplete:', skillId); // Debug log
       await progressApi.markSkillIncomplete(skillId);
       await fetchProgress();
-      await fetchStats();
     } catch (err) {
       console.error('Failed to mark incomplete:', err);
       throw err;
@@ -123,11 +117,10 @@ export const ProgressProvider = ({ children }) => {
 
   const value = {
     progress,
-    stats,
     loading,
     error,
     fetchProgress,
-    fetchStats,
+    calculateStats,
     isSkillCompleted,
     markComplete,
     markIncomplete,

@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSkills } from '../context/SkillsContext';
 import { useProgress } from '../context/ProgressContext';
 import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
-  const { categories } = useSkills();
-  const { stats, progress } = useProgress();
+  const { categories, getTotalSkills } = useSkills();
+  const { calculateStats, progress } = useProgress();
   const { user } = useAuth();
+
+  // Calculate stats with total from skills
+  const stats = useMemo(() => {
+    const totalSkills = getTotalSkills();
+    return calculateStats(totalSkills);
+  }, [progress, categories]);
 
   if (!user) {
     return (
