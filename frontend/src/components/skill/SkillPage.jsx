@@ -34,8 +34,8 @@ const SkillPage = ({ skill, onBack }) => {
   console.log('✓ Is completed:', completed);
 
   const handleToggleComplete = () => {
-    console.log('🔘 BUTTON CLICKED!'); // This should appear first
-    alert('Button was clicked!'); // Visual confirmation
+    // console.log('🔘 BUTTON CLICKED!'); // This should appear first
+    // alert('Button was clicked!'); // Visual confirmation
     
     if (!isAuthenticated) {
       console.log('❌ Not authenticated');
@@ -88,14 +88,14 @@ const SkillPage = ({ skill, onBack }) => {
 
           {/* Content */}
           <div className="p-8">
-            {/* Debug info */}
+            {/* Debug info
             <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 rounded text-sm">
               <div><strong>Debug Info:</strong></div>
               <div>Skill ID: <code>{skillId}</code></div>
               <div>Authenticated: {isAuthenticated ? '✓ Yes' : '✗ No'}</div>
               <div>Completed: {completed ? '✓ Yes' : '✗ No'}</div>
               <div>Updating: {isUpdating ? '⏳ Yes' : '✗ No'}</div>
-            </div>
+            </div> */}
 
             <button 
               onClick={handleToggleComplete}
