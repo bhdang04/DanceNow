@@ -16,27 +16,15 @@ const RoadmapPage = ({ onSkillClick, personalizedData, setPersonalizedData }) =>
   // Generate or retrieve personalized roadmap
   useEffect(() => {
     if (!skillsLoading && allCategories.length > 0) {
-      const onboardingAnswers = localStorage.getItem('onboardingAnswers');
-      
-      if (onboardingAnswers && !personalizedData) {
-        // Generate personalized roadmap from onboarding answers
-        const answers = JSON.parse(onboardingAnswers);
-        const personalized = generatePersonalizedRoadmap(answers, allCategories);
-        
-        // Save to state and localStorage
-        setPersonalizedData(personalized);
-        localStorage.setItem('personalizedRoadmap', JSON.stringify(personalized));
-        setDisplayCategories(personalized.categories);
-        setShowPersonalizationInfo(true);
-      } else if (personalizedData) {
-        // Use existing personalized data
+      // If we have personalized data from backend, use it
+      if (personalizedData && personalizedData.categories) {
         setDisplayCategories(personalizedData.categories);
       } else {
-        // No personalization - show all categories
+        // Show all categories if no personalization
         setDisplayCategories(allCategories);
       }
     }
-  }, [skillsLoading, allCategories, personalizedData, setPersonalizedData]);
+  }, [skillsLoading, allCategories, personalizedData]);
 
   // Calculate stats with total from skills
   const stats = useMemo(() => {
