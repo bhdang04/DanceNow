@@ -80,13 +80,21 @@ const generatePersonalizedRoadmap = (userAnswers, allSkills) => {
     console.log(`Category "${category.title}" - Before filter:`, filteredSkills.length);
 
     if (experienceLevel === 'complete-beginner') {
-      // Only show beginner skills
-      filteredSkills = filteredSkills.filter(skill => skill.difficulty === 'beginner');
+      // Only show beginner skills (case-insensitive)
+      filteredSkills = filteredSkills.filter(skill => {
+        const skillDiff = skill.difficulty?.toLowerCase();
+        const matches = skillDiff === 'beginner';
+        if (!matches) {
+          console.log(`    ❌ Filtering out "${skill.title}" (difficulty: "${skill.difficulty}")`);
+        }
+        return matches;
+      });
     } else if (experienceLevel === 'some-experience') {
-      // Show beginner and intermediate
-      filteredSkills = filteredSkills.filter(skill => 
-        skill.difficulty === 'beginner' || skill.difficulty === 'intermediate'
-      );
+      // Show beginner and intermediate (case-insensitive)
+      filteredSkills = filteredSkills.filter(skill => {
+        const skillDiff = skill.difficulty?.toLowerCase();
+        return skillDiff === 'beginner' || skillDiff === 'intermediate';
+      });
     }
     // For 'intermediate' and 'advanced', show all skills
 
