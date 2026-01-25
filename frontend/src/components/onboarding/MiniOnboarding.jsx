@@ -1,3 +1,4 @@
+// MiniOnboarding.jsx
 import React, { useState } from 'react';
 import { ChevronRight, Sparkles } from 'lucide-react';
 

@@ -1,3 +1,4 @@
+// RoadmapView.jsx
 const RoadmapView = ({ categories, onSkillClick }) => {
   console.log('RoadmapView rendering with', categories.length, 'categories');
   

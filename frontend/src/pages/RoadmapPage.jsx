@@ -1,3 +1,4 @@
+// RoadmapPage.jsx
 import React, { useMemo, useEffect, useState } from 'react';
 import ProgressBar from '../components/common/ProgressBar';
 import RoadmapView from '../components/roadmap/RoadmapView';
@@ -13,8 +14,11 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
   const [displayCategories, setDisplayCategories] = useState([]);
   const [showPersonalizationInfo, setShowPersonalizationInfo] = useState(false);
 
-  // ✅ Normalize personalization ONCE
-  const roadmap = personalizedData?.generatedRoadmap ?? null;
+  console.log('🎯 RoadmapPage DEBUG:', {
+    personalizedData,
+    hasCategories: !!personalizedData?.categories,
+    categoriesLength: personalizedData?.categories?.length
+  });
 
   // Generate milestones locally
   const generateMilestones = (totalSkills) => [
@@ -27,29 +31,22 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
   // Load personalized roadmap OR default
   useEffect(() => {
     if (!skillsLoading && allCategories.length > 0) {
-      console.log('=== ROADMAP PAGE DEBUG ===');
-      console.log('All categories from backend:', allCategories.length);
+      console.log('=== ROADMAP PAGE LOAD ===');
+      console.log('All categories available:', allCategories.length);
       
-      if (personalizedData && personalizedData.categories) {
-        console.log('✅ Using personalized roadmap');
-        console.log('Personalized categories:', personalizedData.categories.length);
+      if (personalizedData?.categories && personalizedData.categories.length > 0) {
+        console.log('✅ Using PERSONALIZED roadmap');
+        console.log('Categories:', personalizedData.categories.length);
         
         personalizedData.categories.forEach((cat, idx) => {
           console.log(`  ${idx + 1}. ${cat.title}: ${cat.skills?.length || 0} skills`);
-          if (cat.skills?.length > 0) {
-            console.log('     Skills:', cat.skills.map(s => s.title).join(', '));
-          }
         });
         
         setDisplayCategories(personalizedData.categories);
         setShowPersonalizationInfo(true);
       } else {
-        console.log('⚠️ No personalized data, using all categories');
-        console.log('All categories:', allCategories.length);
-        
-        allCategories.forEach((cat, idx) => {
-          console.log(`  ${idx + 1}. ${cat.title}: ${cat.skills?.length || 0} skills`);
-        });
+        console.log('⚠️ No personalization - using default roadmap');
+        console.log('Default categories:', allCategories.length);
         
         setDisplayCategories(allCategories);
         setShowPersonalizationInfo(false);
@@ -90,6 +87,26 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
     );
   }
 
+  if (displayCategories.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🎯</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Skills Available</h2>
+          <p className="text-gray-600 mb-4">Please seed your database with skills.</p>
+          {personalizedData && (
+            <button
+              onClick={handleResetPersonalization}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Retake Personalization Quiz
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -99,7 +116,7 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
               Your Learning Roadmap
             </h1>
 
-            {roadmap && (
+            {personalizedData && (
               <button
                 onClick={handleResetPersonalization}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm"
@@ -113,8 +130,8 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
           <ProgressBar completed={stats.completed} total={stats.total} />
         </div>
 
-        {/* 🎯 Personalization Banner */}
-        {showPersonalizationInfo && roadmap?.userProfile && (
+        {/* Personalization Banner */}
+        {showPersonalizationInfo && personalizedData?.userProfile && (
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 mb-8 text-white">
             <div className="flex gap-3">
               <Sparkles size={24} />
@@ -122,17 +139,20 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
                 <h3 className="text-lg font-bold mb-2">
                   Your Personalized Roadmap is Ready 🎉
                 </h3>
-                <p>Focus: <strong>{roadmap.userProfile.danceStyle}</strong></p>
-                <p>Level: <strong>{roadmap.userProfile.experienceLevel}</strong></p>
-                <p>Time: <strong>{roadmap.userProfile.weeklyHours} hrs/week</strong></p>
-                <p>
-                  Recommended: <strong>{roadmap.recommendedPerWeek}</strong> skills/week
-                </p>
-                <p>
-                  Estimated completion: <strong>{roadmap.estimatedWeeks}</strong> weeks
-                </p>
+                <div className="space-y-1 text-sm">
+                  <p>Focus: <strong>{personalizedData.userProfile.danceStyle}</strong></p>
+                  <p>Level: <strong>{personalizedData.userProfile.experienceLevel}</strong></p>
+                  <p>Time: <strong>{personalizedData.userProfile.weeklyHours} hrs/week</strong></p>
+                  <p>Recommended: <strong>{personalizedData.recommendedPerWeek}</strong> skills/week</p>
+                  <p>Estimated completion: <strong>{personalizedData.estimatedWeeks}</strong> weeks</p>
+                </div>
               </div>
-              <button onClick={() => setShowPersonalizationInfo(false)}>✕</button>
+              <button 
+                onClick={() => setShowPersonalizationInfo(false)}
+                className="text-white hover:text-gray-200"
+              >
+                ✕
+              </button>
             </div>
           </div>
         )}
@@ -148,11 +168,11 @@ const RoadmapPage = ({ onSkillClick, personalizedData, onResetPersonalization })
               currentPercentage={stats.percentage}
             />
 
-            {roadmap && (
+            {personalizedData && (
               <div className="bg-white rounded-xl p-6 border mt-6">
                 <h3 className="font-bold mb-4">Recommended This Week</h3>
                 <p className="text-2xl font-bold text-purple-600">
-                  {roadmap.recommendedPerWeek} skills
+                  {personalizedData.recommendedPerWeek} skills
                 </p>
                 <p className="text-sm text-gray-600 mt-2">
                   Progress: {stats.completed} / {stats.total}
