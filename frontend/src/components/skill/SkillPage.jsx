@@ -74,8 +74,12 @@ const SkillPage = ({ skill, onBack }) => {
         </button>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          {/* Header */}
-          <div className={`bg-gradient-to-r ${skill.categoryColor} p-8 text-white`}>
+          {/* Header - FIXED VERSION */}
+          <div className={`p-8 ${
+            skill.categoryColor 
+              ? `bg-gradient-to-r ${skill.categoryColor} text-white`
+              : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+          }`}>
             <div className="flex items-center gap-3 mb-4">
               <DifficultyBadge difficulty={skill.difficulty} />
               <span className="text-sm opacity-90">{skill.duration}</span>

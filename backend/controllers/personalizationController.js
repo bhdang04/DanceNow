@@ -247,15 +247,21 @@ export const savePersonalization = async (req, res) => {
       personalizationData
     );
 
-    console.log('Personalization saved successfully');
+    console.log('✅ Personalization saved successfully');
+    console.log('📤 Sending response with', generatedRoadmap.categories.length, 'categories');
 
+    // ✅ Make sure this matches what frontend expects
     res.json({
       success: true,
       message: 'Personalization saved successfully',
-      personalization
+      personalization: {
+        answers: personalization.answers,
+        generatedRoadmap: personalization.generatedRoadmap,
+        updatedAt: personalization.updatedAt
+      }
     });
   } catch (error) {
-    console.error('Error saving personalization:', error);
+    console.error('❌ Error saving personalization:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
