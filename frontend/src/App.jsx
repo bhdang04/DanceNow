@@ -247,12 +247,20 @@ const AppContent = () => {
     }
   }
 
+  const handleNavigation = (page) => {
+    if (page === 'roadmap') {
+      setSelectedSkill(null); // Always reset skill when navigating to roadmap
+    }
+    setCurrentPage(page);
+    setMobileMenuOpen(false); // Close mobile menu if open
+  };
+
   // Main app
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar 
         currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        setCurrentPage={handleNavigation}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
       />
