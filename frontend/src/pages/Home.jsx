@@ -3,7 +3,7 @@ import CategoryCard from '../components/roadmap/CategoryCard';
 import { useSkills } from '../context/SkillsContext';
 import { useProgress } from '../context/ProgressContext';
 
-const Home = ({ setCurrentPage }) => {
+const Home = ({ setCurrentPage, onSkillClick }) => {
   const { categories, loading: skillsLoading, getTotalSkills } = useSkills();
   const { calculateStats, progress } = useProgress();
 
@@ -11,7 +11,7 @@ const Home = ({ setCurrentPage }) => {
   const stats = useMemo(() => {
     const totalSkills = getTotalSkills();
     return calculateStats(totalSkills);
-  }, [progress, categories]);
+  }, [progress, categories, getTotalSkills, calculateStats]);
 
   if (skillsLoading) {
     return (
@@ -69,10 +69,19 @@ const Home = ({ setCurrentPage }) => {
 
         {/* Categories Preview */}
         <div className="mt-20">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Learning Path</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 text-center">
+            Explore All Skills
+          </h2>
+          <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+            Click on any category to explore the skills you can learn. Get your personalized roadmap by clicking "Start Learning" above.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+              <CategoryCard 
+                key={category.id} 
+                category={category} 
+                onSkillClick={onSkillClick}
+              />
             ))}
           </div>
         </div>

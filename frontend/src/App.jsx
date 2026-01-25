@@ -28,12 +28,12 @@ const AppContent = () => {
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
   
   const { isAuthenticated, user, loading: authLoading } = useAuth();
-  const hasCheckedOnboarding = useRef(false); // Use ref to track if we've checked
+  const hasCheckedOnboarding = useRef(false);
 
   // Check onboarding status ONLY on initial mount
   useEffect(() => {
     if (authLoading) return;
-    if (hasCheckedOnboarding.current) return; // Only check once
+    if (hasCheckedOnboarding.current) return;
 
     const checkOnboardingStatus = async () => {
       console.log('🔍 Checking onboarding status...');
@@ -179,14 +179,24 @@ const AppContent = () => {
     }
   };
 
-  // Handle skill click
+  // Single handler for all skill clicks (from home OR roadmap)
   const handleSkillClick = (skill) => {
     console.log('App - Skill clicked:', skill);
     setSelectedSkill(skill);
   };
 
-  const handleBackToRoadmap = () => {
+  // Single handler to go back (works from anywhere)
+  const handleBackClick = () => {
+    console.log('⬅️ Going back');
     setSelectedSkill(null);
+  };
+
+  // Handle navigation (resets skill selection)
+  const handleNavigation = (page) => {
+    console.log('🧭 Navigating to:', page);
+    setSelectedSkill(null); // Reset skill when navigating
+    setCurrentPage(page);
+    setMobileMenuOpen(false);
   };
 
   // Reset personalization
@@ -199,7 +209,7 @@ const AppContent = () => {
       setMiniAnswers(null);
       localStorage.removeItem('miniOnboardingAnswers');
       setOnboardingStage('mini');
-      hasCheckedOnboarding.current = false; // Allow re-check
+      hasCheckedOnboarding.current = false;
     } catch (error) {
       console.error('Error resetting personalization:', error);
     }
@@ -247,15 +257,7 @@ const AppContent = () => {
     }
   }
 
-  const handleNavigation = (page) => {
-    if (page === 'roadmap') {
-      setSelectedSkill(null); // Always reset skill when navigating to roadmap
-    }
-    setCurrentPage(page);
-    setMobileMenuOpen(false); // Close mobile menu if open
-  };
-
-  // Main app
+  // Main app - Show skill detail if ANY skill is selected (from home or roadmap)
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar 
@@ -265,40 +267,47 @@ const AppContent = () => {
         setMobileMenuOpen={setMobileMenuOpen}
       />
       
-      {currentPage === 'home' && <Home setCurrentPage={setCurrentPage} />}
-      
-      {currentPage === 'roadmap' && !selectedSkill && (
-        <RoadmapPage 
-          onSkillClick={handleSkillClick}
-          personalizedData={personalizedData}
-          setPersonalizedData={setPersonalizedData}
-          onResetPersonalization={handleResetPersonalization}
-        />
-      )}
-      
-      {currentPage === 'roadmap' && selectedSkill && (
+      {selectedSkill ? (
         <SkillDetail 
           skill={selectedSkill}
-          onBack={handleBackToRoadmap}
+          onBack={handleBackClick}
         />
-      )}
-      
-      {currentPage === 'profile' && <Profile />}
-      
-      {currentPage === 'about' && <About />}
-      
-      {currentPage === 'login' && (
-        <Login 
-          setCurrentPage={setCurrentPage}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
-      
-      {currentPage === 'signup' && (
-        <Signup 
-          setCurrentPage={setCurrentPage}
-          onSignupSuccess={handleSignupSuccess}
-        />
+      ) : (
+        <>
+          {currentPage === 'home' && (
+            <Home 
+              setCurrentPage={handleNavigation}
+              onSkillClick={handleSkillClick}
+            />
+          )}
+          
+          {currentPage === 'roadmap' && (
+            <RoadmapPage 
+              onSkillClick={handleSkillClick}
+              personalizedData={personalizedData}
+              setPersonalizedData={setPersonalizedData}
+              onResetPersonalization={handleResetPersonalization}
+            />
+          )}
+          
+          {currentPage === 'profile' && <Profile />}
+          
+          {currentPage === 'about' && <About />}
+          
+          {currentPage === 'login' && (
+            <Login 
+              setCurrentPage={handleNavigation}
+              onLoginSuccess={handleLoginSuccess}
+            />
+          )}
+          
+          {currentPage === 'signup' && (
+            <Signup 
+              setCurrentPage={handleNavigation}
+              onSignupSuccess={handleSignupSuccess}
+            />
+          )}
+        </>
       )}
       
       <Footer />
