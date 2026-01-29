@@ -1,4 +1,4 @@
-# DanceNow[readme_md.md](https://github.com/user-attachments/files/24928053/readme_md.md)
+# DanceNow
 # 🎤 Hip-Hop Dance Learning Platform
 
 > Your personalized roadmap to mastering hip-hop dance from beginner to advanced
