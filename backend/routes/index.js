@@ -5,7 +5,6 @@ import personalizationRoutes from './personalization.js';
 
 const router = express.Router();
 
-router.use('/auth', authRoutes);
 router.use('/progress', progressRoutes);
 router.use('/skills', skillsRoutes);
 router.use('/personalization', personalizationRoutes);
