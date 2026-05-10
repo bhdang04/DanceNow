@@ -1,41 +1,55 @@
-import { ObjectId } from 'mongodb';
-import { getDB } from '../config/db.js';
+import { supabase } from '../config/supabase.js';
 
 export class Personalization {
-  static collection() {
-    return getDB().collection('personalizations');
-  }
-
   // Create or update personalization for a user
   static async upsert(userId, personalizationData) {
-    const result = await this.collection().findOneAndUpdate(
-      { userId: new ObjectId(userId) },
-      { 
-        $set: {
-          ...personalizationData,
-          updatedAt: new Date()
+    const { data, error } = await supabase
+      .from('personalizations')
+      .upsert(
+        {
+          user_id: userId,
+          answers: personalizationData.answers,
+          generated_roadmap: personalizationData.generatedRoadmap,
+          updated_at: new Date().toISOString()
         },
-        $setOnInsert: {
-          userId: new ObjectId(userId),
-          createdAt: new Date()
+        {
+          onConflict: 'user_id',
+          returning: 'representation'
         }
-      },
-      { 
-        upsert: true,
-        returnDocument: 'after'
-      }
-    );
-    return result;
+      )
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   // Get personalization by user ID
   static async findByUserId(userId) {
-    return await this.collection().findOne({ userId: new ObjectId(userId) });
+    const { data, error } = await supabase
+      .from('personalizations')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+    
+    return data;
   }
 
   // Delete personalization
   static async deleteByUserId(userId) {
-    return await this.collection().deleteOne({ userId: new ObjectId(userId) });
+    const { data, error } = await supabase
+      .from('personalizations')
+      .delete()
+      .eq('user_id', userId)
+      .select();
+
+    if (error) throw error;
+    return { deletedCount: data.length };
   }
 }
 

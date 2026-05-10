@@ -1,54 +1,65 @@
-import { ObjectId } from 'mongodb';
-import { getDB } from '../config/db.js';
+import { supabase } from '../config/supabase.js';
 
 export class Progress {
-  static collection() {
-    return getDB().collection('progress');
-  }
-
   // Create or update progress
   static async upsert(userId, skillId, progressData) {
-    const result = await this.collection().findOneAndUpdate(
-      { userId: new ObjectId(userId), skillId },
-      { 
-        $set: {
-          ...progressData,
-          updatedAt: new Date()
+    const { data, error } = await supabase
+      .from('progress')
+      .upsert(
+        {
+          user_id: userId,
+          skill_id: skillId,
+          completed: progressData.completed || false,
+          completed_at: progressData.completedAt || null,
+          notes: progressData.notes || '',
+          updated_at: new Date().toISOString()
         },
-        $setOnInsert: {
-          userId: new ObjectId(userId),
-          skillId,
-          createdAt: new Date()
+        {
+          onConflict: 'user_id,skill_id',
+          returning: 'representation'
         }
-      },
-      { 
-        upsert: true,
-        returnDocument: 'after'
-      }
-    );
-    return result;
+      )
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   // Get all progress for a user
   static async findByUserId(userId) {
-    return await this.collection()
-      .find({ userId: new ObjectId(userId) })
-      .toArray();
+    const { data, error } = await supabase
+      .from('progress')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   }
 
   // Get progress for a specific skill
   static async findByUserAndSkill(userId, skillId) {
-    return await this.collection().findOne({
-      userId: new ObjectId(userId),
-      skillId
-    });
+    const { data, error } = await supabase
+      .from('progress')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('skill_id', skillId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    
+    return data;
   }
 
   // Mark skill as complete
   static async markComplete(userId, skillId, notes = '') {
     return await this.upsert(userId, skillId, {
       completed: true,
-      completedAt: new Date(),
+      completedAt: new Date().toISOString(),
       notes
     });
   }
@@ -63,10 +74,15 @@ export class Progress {
 
   // Delete progress
   static async deleteByUserAndSkill(userId, skillId) {
-    return await this.collection().deleteOne({
-      userId: new ObjectId(userId),
-      skillId
-    });
+    const { data, error } = await supabase
+      .from('progress')
+      .delete()
+      .eq('user_id', userId)
+      .eq('skill_id', skillId)
+      .select();
+
+    if (error) throw error;
+    return { deletedCount: data.length };
   }
 
   // Get progress statistics
