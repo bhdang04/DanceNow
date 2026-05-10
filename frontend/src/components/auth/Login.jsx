@@ -10,25 +10,23 @@ const Login = ({ setCurrentPage, onLoginSuccess }) => {  // ← Make sure this p
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
+    setError('');
 
     try {
-      await login(email, password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      console.log('✅ Login successful!', data);
+      onLoginSuccess();
       
-      console.log('✅ Login successful');
-      
-      // Call success callback if provided
-      if (onLoginSuccess) {
-        console.log('✅ Calling onLoginSuccess');
-        onLoginSuccess();
-      } else {
-        console.warn('⚠️ onLoginSuccess not provided, using fallback');
-        setCurrentPage('roadmap');
-      }
-    } catch (err) {
-      console.error('❌ Login error:', err);
-      setError(err.message || 'Failed to login');
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }

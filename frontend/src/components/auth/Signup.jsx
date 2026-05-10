@@ -12,36 +12,28 @@ const Signup = ({ setCurrentPage, onSignupSuccess }) => {  // ← Make sure this
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    setLoading(true);
-
     try {
-      await register(username, email, password);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name // User metadata
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      console.log('✅ Signup successful!', data);
+      onSignupSuccess();
       
-      console.log('✅ Registration successful');
-      
-      // Call success callback if provided
-      if (onSignupSuccess) {
-        console.log('✅ Calling onSignupSuccess');
-        onSignupSuccess();
-      } else {
-        console.warn('⚠️ onSignupSuccess not provided, using fallback');
-        setCurrentPage('roadmap');
-      }
-    } catch (err) {
-      console.error('❌ Signup error:', err);
-      setError(err.message || 'Failed to create account');
+    } catch (error) {
+      console.error('❌ Signup error:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
