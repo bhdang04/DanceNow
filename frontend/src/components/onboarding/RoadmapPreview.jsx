@@ -1,7 +1,7 @@
 import React from 'react';
 import { Lock, Sparkles, CheckCircle } from 'lucide-react';
 
-const RoadmapPreview = ({ miniAnswers, onSignup }) => {
+const RoadmapPreview = ({ miniAnswers, onSignup, onLogin }) => {
   // Quick preview based on their 3 answers
   const getPreviewData = () => {
     const { danceStyle, experienceLevel, primaryGoal } = miniAnswers;
@@ -144,7 +144,7 @@ const RoadmapPreview = ({ miniAnswers, onSignup }) => {
             Create My Free Account →
           </button>
           <p className="text-sm text-gray-500 mt-3">
-            Already have an account? <button onClick={onSignup} className="text-purple-600 font-semibold">Sign in</button>
+            Already have an account? <button onClick={onLogin} className="text-purple-600 font-semibold">Sign in</button>
           </p>
         </div>
       </div>
